@@ -3,177 +3,142 @@
 #include <string>
 using namespace std;
 
-// Base Class: Vehicle (Single / Multilevel Inheritance Style)
-class Vehicle {
+// Base Class: Person (Inheritance concept)
+class Person {
 public:
-    char vnumber[20];
-    char vname[20];
-    float baseRate;
+    char name[30];
+    char phone[15];
+    int age;
 
-    void inputVehicleDetails() {
-        cout << "Enter Vehicle Number (e.g., MH12AB1234): ";
-        cin >> vnumber;
-        cout << "Enter Vehicle Name (e.g., Swift/R15/Activa): ";
-        cin >> vname;
-        cout << "Enter Base Rent Rate per Day (Rs.): ";
-        cin >> baseRate;
+    void inputPersonDetails() {
+        cout << "Enter Member Name: ";
+        cin.ignore();
+        cin.getline(name, 30);
+        cout << "Enter Phone Number: ";
+        cin >> phone;
+        cout << "Enter Age: ";
+        cin >> age;
     }
 };
 
-// Derived Class: Car (Inherits Vehicle)
-class Car : public Vehicle {
+// Derived Class: GymMember (Inherits Person)
+class GymMember : public Person {
 public:
-    int seatingCapacity;
+    int memberID;
+    int planChoice;
+    float totalFee;
+    string planName;
 
-    void inputCar() {
-        inputVehicleDetails();
-        cout << "Enter Seating Capacity: ";
-        cin >> seatingCapacity;
+    void registerMember() {
+        cout << "Enter Member ID: ";
+        cin >> memberID;
+        
+        // Input base details from Person class
+        inputPersonDetails();
+
+        cout << "\n--- Select Membership Plan ---\n";
+        cout << "1. Monthly Plan (Rs. 1000)\n";
+        cout << "2. Quarterly Plan - 3 Months (Rs. 2700 - 10% Off)\n";
+        cout << "3. Yearly Plan - 12 Months (Rs. 9600 - 20% Off)\n";
+        cout << "Enter Plan Choice (1-3): ";
+        cin >> planChoice;
+
+        // Calculate Fee based on Plan
+        if (planChoice == 1) {
+            planName = "Monthly";
+            totalFee = 1000.0;
+        } else if (planChoice == 2) {
+            planName = "Quarterly";
+            totalFee = 2700.0;
+        } else if (planChoice == 3) {
+            planName = "Yearly";
+            totalFee = 9600.0;
+        } else {
+            cout << "Invalid choice! Setting default Monthly plan.\n";
+            planName = "Monthly";
+            totalFee = 1000.0;
+        }
+
+        displayReceipt();
+        saveToFile();
     }
 
-    float calculateCarRent(int days) {
-        // Simple logic: Base rate * days + Fixed Rs. 500 Insurance
-        return (baseRate * days) + 500;
-    }
-};
-
-// Derived Class: Bike (Inherits Vehicle)
-class Bike : public Vehicle {
-public:
-    int engineCC;
-
-    void inputBike() {
-        inputVehicleDetails();
-        cout << "Enter Engine CC: ";
-        cin >> engineCC;
+    void displayReceipt() {
+        cout << "\n================ MEMBER BILL RECEIPT ================\n";
+        cout << "Member ID    : " << memberID << endl;
+        cout << "Name         : " << name << endl;
+        cout << "Phone        : " << phone << endl;
+        cout << "Age          : " << age << endl;
+        cout << "Selected Plan: " << planName << endl;
+        cout << "Total Amount : Rs. " << totalFee << endl;
+        cout << "======================================================\n";
     }
 
-    float calculateBikeRent(int days) {
-        // Simple logic: Base rate * days
-        return (baseRate * days);
-    }
-};
-
-// Rental Transaction & Billing Class (Handles Files)
-class RentalBilling {
-public:
-    char customerName[30];
-    int days;
-    float totalBill;
-
-    void generateCarBill(Car c) {
-        cout << "\nEnter Customer Name: ";
-        cin >> customerName;
-        cout << "Enter Number of Rental Days: ";
-        cin >> days;
-
-        totalBill = c.calculateCarRent(days);
-
-        // Print Bill to Screen
-        cout << "\n================ RENTAL RECEIPT ================\n";
-        cout << "Customer Name : " << customerName << endl;
-        cout << "Vehicle Type  : Car (" << c.vname << ")" << endl;
-        cout << "Vehicle No.   : " << c.vnumber << endl;
-        cout << "Rental Days   : " << days << endl;
-        cout << "Total Bill    : Rs. " << totalBill << endl;
-        cout << "================================================\n";
-
-        // File Handling: Save bill to rentals.txt
-        ofstream outFile("rentals.txt", ios::app);
+    // File Handling: Save details to members.txt
+    void saveToFile() {
+        ofstream outFile("gym_members.txt", ios::app);
         if (outFile.is_open()) {
-            outFile << "Customer: " << customerName 
-                    << " | Vehicle: " << c.vname 
-                    << " (" << c.vnumber << ")"
-                    << " | Days: " << days 
-                    << " | Total: Rs." << totalBill << endl;
+            outFile << "ID: " << memberID 
+                    << " | Name: " << name 
+                    << " | Phone: " << phone 
+                    << " | Plan: " << planName 
+                    << " | Amount: Rs." << totalFee << endl;
             outFile.close();
-            cout << "Receipt saved to rentals.txt successfully!\n";
+            cout << "Member record saved to gym_members.txt successfully!\n";
+        } else {
+            cout << "Error opening file to save data!\n";
         }
     }
+};
 
-    void generateBikeBill(Bike b) {
-        cout << "\nEnter Customer Name: ";
-        cin >> customerName;
-        cout << "Enter Number of Rental Days: ";
-        cin >> days;
-
-        totalBill = b.calculateBikeRent(days);
-
-        // Print Bill to Screen
-        cout << "\n================ RENTAL RECEIPT ================\n";
-        cout << "Customer Name : " << customerName << endl;
-        cout << "Vehicle Type  : Bike (" << b.vname << ")" << endl;
-        cout << "Vehicle No.   : " << b.vnumber << endl;
-        cout << "Rental Days   : " << days << endl;
-        cout << "Total Bill    : Rs. " << totalBill << endl;
-        cout << "================================================\n";
-
-        // File Handling: Save bill to rentals.txt
-        ofstream outFile("rentals.txt", ios::app);
-        if (outFile.is_open()) {
-            outFile << "Customer: " << customerName 
-                    << " | Vehicle: " << b.vname 
-                    << " (" << b.vnumber << ")"
-                    << " | Days: " << days 
-                    << " | Total: Rs." << totalBill << endl;
-            outFile.close();
-            cout << "Receipt saved to rentals.txt successfully!\n";
-        }
-    }
-
-    void viewAllRecords() {
-        ifstream inFile("rentals.txt");
+// Manager Class to View File Records
+class GymManager {
+public:
+    void viewAllMembers() {
+        ifstream inFile("gym_members.txt");
         if (!inFile.is_open()) {
-            cout << "\nNo rental records found yet!\n";
+            cout << "\nNo gym records found yet!\n";
             return;
         }
 
         string line;
-        cout << "\n================ ALL RENTAL RECORDS ================\n";
+        cout << "\n================ REGISTERED GYM MEMBERS ================\n";
         while (getline(inFile, line)) {
             cout << line << endl;
         }
-        cout << "====================================================\n";
+        cout << "========================================================\n";
         inFile.close();
     }
 };
 
 int main() {
-    Car c1;
-    Bike b1;
-    RentalBilling system;
+    GymMember member;
+    GymManager manager;
     int choice;
 
     do {
-        cout << "\n===== VEHICLE RENTAL & BILLING SYSTEM =====\n";
-        cout << "1. Add Car & Rent\n";
-        cout << "2. Add Bike & Rent\n";
-        cout << "3. View All Saved Rental Records\n";
-        cout << "4. Exit\n";
+        cout << "\n===== GYM MANAGEMENT & BILLING SYSTEM =====\n";
+        cout << "1. Register New Member & Generate Bill\n";
+        cout << "2. View All Saved Member Records\n";
+        cout << "3. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
         switch (choice) {
         case 1:
-            cout << "\n--- Enter Car Details ---\n";
-            c1.inputCar();
-            system.generateCarBill(c1);
+            cout << "\n--- New Member Registration ---\n";
+            member.registerMember();
             break;
         case 2:
-            cout << "\n--- Enter Bike Details ---\n";
-            b1.inputBike();
-            system.generateBikeBill(b1);
+            manager.viewAllMembers();
             break;
         case 3:
-            system.viewAllRecords();
-            break;
-        case 4:
             cout << "Exiting Program. Thank you!\n";
             break;
         default:
-            cout << "Invalid choice! Please try again.\n";
+            cout << "Invalid choice! Please enter 1, 2, or 3.\n";
         }
-    } while (choice != 4);
+    } while (choice != 3);
 
     return 0;
 }
